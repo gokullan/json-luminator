@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "Weblighter",
+  "version": "1.0",
+  "description": "A persistent web hightligher!",
+  "icons": {
+    "48": "icons/highlighter-solid.svg"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.mozilla.org/*"],
+      "js": ["weblighter.js"]
+    }
+  ]
+}
