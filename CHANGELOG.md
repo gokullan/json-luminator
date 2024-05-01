@@ -9,10 +9,13 @@
 - `web-ext` installed to test extension
 
 ## Phase 2
-- [ ] De-highlight already highlighted text
+- [x] De-highlight already highlighted text
+- Double-clicking to de-highlight does not work (anchor and focus-nodes are different but they are the ones surronding the actual selected text)
+- How to get parent of offset of anchorNode?
 
 ## Phase 3
 - [ ] Highlight persistence - 1: Store / load from a fixed file
+- [ ] Need to differentiate between adjacent (continuous) highlights
 
 ## Phase 4
 - [ ] Highlight persistence - 2 : Store / load from file-system

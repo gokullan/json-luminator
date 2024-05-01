@@ -9,7 +9,12 @@
   "content_scripts": [
     {
       "matches": ["*://*.mozilla.org/*"],
-      "js": ["weblighter.js"]
+      "js": ["lodash.min.js", "messages.js", "weblighter.js"]
     }
-  ]
+  ],
+  "user_scripts": {
+  },
+  "permissions": [
+  "*://*.mozilla.org/*"
+]
 }
