@@ -1,12 +1,25 @@
-document.addEventListener('dblclick', (event) => {
+allowedNodes = [
+  "STRONG",
+  "CODE",
+  "A"
+]
+
+document.addEventListener('keydown', (event) => {
   try {
-    let rootNode = document.querySelector('body')
-    let children = _.get(rootNode, 'children');
-    let objToSave = { "highlights": [] }
-    // storeAll(rootNode, children, objToSave);
-    // download(objToSave, 'highlight-1.json')
-    objToSave = {"highlights":[{"path":[2,0,0,0,0],"offsetStart":0,"offsetEnd":7},{"path":[2,0,0,1,0],"offsetStart":12,"offsetEnd":19},{"path":[2,0,0,1,1],"offsetStart":51,"offsetEnd":20},{"path":[2,0,0,1,2],"offsetStart":34,"offsetEnd":38},{"path":[2,1,2,0,0,0,0],"offsetStart":52,"offsetEnd":41},{"path":[2,1,5,0,1,0],"offsetStart":35,"offsetEnd":21}]}
-    restoreHighlights(objToSave);
+    let objToSave;
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault()
+      let rootNode = document.querySelector('body')
+      let children = _.get(rootNode, 'childNodes');
+      objToSave = { "highlights": [] }
+      storeAll(rootNode, children, objToSave);
+      download(objToSave, 'highlight-1.json')
+    }
+    else if (event.ctrlKey && event.key === 'r') {
+      event.preventDefault()
+      objToSave = savedHighlights;
+      restoreHighlights(objToSave);
+    }
   } catch(err) {
     console.log(err);
   }
@@ -120,7 +133,7 @@ function storeAll(rootNode, children, objToSave, path=[]) {
         }
         storeAll(
           currentNode,
-          _.get(currentNode, 'children'),
+          _.get(currentNode, 'childNodes'),
           objToSave,
           _.concat(path, i)
         )
@@ -140,10 +153,11 @@ function restoreHighlights(savedObj) {
       _.forEach(path, (childIndex, i) => {
         // stop with last-but-one
         if (i !== path.length - 1) {
-          node = node.children[childIndex]
+          node = node.childNodes[childIndex]
         }
       })
-      let textNode = _.last(_.get(node, 'childNodes'));
+      // let textNode = _.last(_.get(node, 'childNodes'));
+      let textNode = _.get(node, `childNodes[${_.last(path) - 1}]`);
       // if (_.last(path) === 0) {
       //   // TODO: check if node.childNodes has length = 1
       //   textNode = _.get(node, 'childNodes[0]')

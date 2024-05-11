@@ -8,8 +8,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.mozilla.org/*"],
-      "js": ["lodash.min.js", "messages.js", "weblighter.js"]
+      "matches": ["https://*.org/*"],
+      "js": ["lodash.min.js", "messages.js", "weblighter.js", "saved.js"]
     }
   ],
   "user_scripts": {
