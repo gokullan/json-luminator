@@ -9,7 +9,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.org/*"],
-      "js": ["lodash.min.js", "messages.js", "weblighter.js", "saved.js"]
+      "js": ["lodash.min.js", "constants.js", "weblighter.js", "saved.js"]
     }
   ],
   "user_scripts": {

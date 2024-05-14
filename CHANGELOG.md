@@ -14,11 +14,11 @@
 - How to get parent of offset of anchorNode?
 
 ## Phase 3
-- [ ] Highlight persistence - 1: Store / load from a fixed file
-- [ ] Need to differentiate between adjacent (continuous) highlights
+- [x] Highlight persistence - 1: Store / load from a fixed file
 
 ## Phase 4
 - [ ] Highlight persistence - 2 : Store / load from file-system
+- [ ] Class-name
 
 ## Phase 5
 - [ ] Popup design and development
@@ -33,3 +33,8 @@
 - [ ] Notes - 2
   - Edit / update note 
 
+## Others
+- Undo/ Redo
+- Highlight different blocks in one go
+- Merging highlights (context: when part of the selection is highlighted)
+- Storage improvement

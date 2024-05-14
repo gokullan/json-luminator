@@ -1,12 +1,9 @@
-allowedNodes = [
-  "STRONG",
-  "CODE",
-  "A"
-]
+console.log(BlockElementNames)
 
 document.addEventListener('keydown', (event) => {
   try {
     let objToSave;
+    // `Ctrl + s` to save highlights
     if (event.ctrlKey && event.key === 's') {
       event.preventDefault()
       let rootNode = document.querySelector('body')
@@ -15,6 +12,7 @@ document.addEventListener('keydown', (event) => {
       storeAll(rootNode, children, objToSave);
       download(objToSave, 'highlight-1.json')
     }
+    // `Ctrl + r` to restore highlights
     else if (event.ctrlKey && event.key === 'r') {
       event.preventDefault()
       objToSave = savedHighlights;
@@ -37,84 +35,93 @@ document.addEventListener('click', (event) => {
       break;
     }
     case 1: {
-      removeHighlightSameNode(selection);
-      break;
-    }
-    case 2: {
-      console.log("In Progress")
-      break;
-    }
-    case 3: {
-      console.log("In Progress")
+      removeHighlight(selection);
       break;
     }
   }
 })
 
 function createHighlight(selection) {
-  // CASE 1: anchorNode is same as focusNode
-  if (selection.anchorNode == selection.focusNode) {
-    if (selection.anchorNode.nodeName !== "#text") {
-      console.log("Not a valid selection", selection.anchorNode.nodeName);
-      return;
-    }
-    // create the range of highlight
-    const highlightRange = new Range();
-    highlightRange.setStart(selection.anchorNode, selection.anchorOffset);
-    highlightRange.setEnd(selection.focusNode, selection.focusOffset);
-    // make the highlight!
-    highlightRange.surroundContents(document.createElement('mark'));
+  /*
+   * Conditions for creating a highlight:
+   * - Anchor and focus nodes should be text-nodes
+   *   (this has been the observed behaviour, so some of the logic is based on this)
+   * - Anchor and focus nodes should have the same "block parent"
+   *   (see below for the notion of a "block parent")
+   */
+  if (selection.anchorNode.nodeName !== "#text") {
+    console.log("Not a valid selection", selection.anchorNode.nodeName);
+    return;
   }
-  // TODO CASE 2: anchorNode and focusNode are different
-  else {
-    console.log("Work in Progress ...");
+  else if (getBlockParent(selection.anchorNode) != getBlockParent(selection.focusNode)) {
+    console.log("Cannot highlight (as of now)");
+    return;
   }
+  // create the range of highlight
+  const highlightRange = new Range();
+  highlightRange.setStart(selection.anchorNode, selection.anchorOffset);
+  highlightRange.setEnd(selection.focusNode, selection.focusOffset);
+  // make the highlight!
+  let markNode = document.createElement('mark');
+  markNode.appendChild(highlightRange.extractContents());
+  highlightRange.insertNode(markNode);
 }
 
 function shouldMergeNodes() {
 }
 
-function isAlreadyHighlighted(selection) {
-  try {
-    // CASE 1: anchorNode is same as focusNode
-    if (
-      !_.isNil(_.get(selection, 'anchorNode')) &&
-      _.get(selection, 'anchorNode') == _.get(selection, 'focusNode')
-    ) {
-      // if the node is already highlighted, its parent would be a `mark` element
-      if (_.get(selection, 'anchorNode.parentNode.nodeName') === "MARK") {
-        return 1;
-      }
-    }
-    // CASE 2: anchorNode and focusNode are different
-    else {
-      // if MARK is the sibling of the anchorNode 
-      if (_.get(selection, 'anchorNode.nextElementSibling.nodeName') === "MARK") {
-        console.log("Unhighlighted + Highlighted + ...");
-        return 2;
-      }
-      else if (_.get(selection, 'focusNode.previousElementSibling.nodeName') === "MARK") {
-        console.log("Highlighted + Unhighlighted + ...");
-        return 3;
-      }
-      else {
-      }
-    }
-  }catch(err) {
-    console.log(err);
-    return 0;
+function getBlockParent(node) {
+  /*
+   * - The "block parent" of a node is that ancestor whose node-name is one of `BlockElementNames`
+   *   (defined in `constants.js`; these elements are also referred to as block-level elements)
+   * - Since this function is used in the context of checking if a given highlight is to be created or removed,
+   *   the 'MARK' node is also considered "block parent" 
+   */
+  let currentNode = node;
+  while (
+    currentNode &&
+    _.get(currentNode, 'nodeName') !== 'MARK' &&
+    !_.includes(BlockElementNames, _.get(currentNode, 'nodeName'))
+  ) {
+    currentNode = _.get(currentNode, 'parentNode');
   }
-  return 0;
+  return currentNode;
 }
 
-function removeHighlightSameNode(selection) {
-  let textNode = selection.anchorNode;
-  let markNode = textNode.parentNode;
-  let grandParent = markNode.parentNode;
-  grandParent.insertBefore(textNode, markNode.nextSibling);
-  // grandParent.insertBefore(markNode.previousSibling, textNode);
-  grandParent.removeChild(markNode);
-  grandParent.normalize();
+function isAlreadyHighlighted(selection) {
+  try {
+    const anchorNode = _.get(selection, 'anchorNode'),
+      focusNode = _.get(selection, 'focusNode');
+    const blockParentOfAnchor = getBlockParent(anchorNode),
+      blockParentOfFocus = getBlockParent(focusNode);
+    if (
+      _.get(blockParentOfFocus, 'nodeName') === 'MARK' &&
+      blockParentOfFocus == blockParentOfAnchor
+    ) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+function removeHighlight(selection) {
+  try {
+    let textNode = selection.anchorNode;
+    let markNode = getBlockParent(textNode);
+    let children = _.get(markNode, 'childNodes');
+    let grandParent = markNode.parentNode;
+    _.forEachRight(children, (child) => {
+      grandParent.insertBefore(child, markNode.nextSibling);
+    })
+    grandParent.removeChild(markNode);
+    grandParent.normalize();
+  } catch(err) {
+    console.log(err);
+  }
 }
 
 function storeAll(rootNode, children, objToSave, path=[]) {
@@ -156,24 +163,17 @@ function restoreHighlights(savedObj) {
           node = node.childNodes[childIndex]
         }
       })
-      // let textNode = _.last(_.get(node, 'childNodes'));
       let textNode = _.get(node, `childNodes[${_.last(path) - 1}]`);
-      // if (_.last(path) === 0) {
-      //   // TODO: check if node.childNodes has length = 1
-      //   textNode = _.get(node, 'childNodes[0]')
-      // }
-      // else {
-      //   textNode = _.last(_.get(node, 'childNodes'));
-      // }
-      // console.log(path);
-      // console.log(node.childNodes);
       if (textNode) {
         // create the range of highlight
         const highlightRange = new Range();
         highlightRange.setStart(textNode, offsetStart);
         highlightRange.setEnd(textNode, offsetStart + offsetEnd);
         // make the highlight!
-        highlightRange.surroundContents(document.createElement('mark'));
+        // highlightRange.surroundContents(document.createElement('mark'));
+        let markNode = document.createElement('mark');
+        markNode.appendChild(highlightRange.extractContents());
+        highlightRange.insertNode(markNode);
       }
     })
   } catch(err) {
