@@ -124,6 +124,15 @@ function removeHighlight(selection) {
   }
 }
 
+function computeFocusOffset(markNode) {
+  const lastChildNode = _.last(markNode.childNodes);
+  return _.get(
+    lastChildNode, 
+    'innerText.length', 
+    _.get(lastChildNode, 'length')
+  );
+}
+
 function storeAll(rootNode, children, objToSave, path=[]) {
   try {
     if (_.get(rootNode, 'childElementCount') > 0) {
@@ -134,7 +143,8 @@ function storeAll(rootNode, children, objToSave, path=[]) {
            _.get(objToSave, 'highlights').push({
              "path": _.concat(path, i),
              "offsetStart": _.get(currentNode, 'previousSibling.length', 0),
-             "offsetEnd": _.get(currentNode, 'innerText.length', 0)
+             "offsetEnd": computeFocusOffset(currentNode),
+             "n": currentNode.childNodes.length - 2
            })
           console.log(_.last(_.get(objToSave, 'highlights')));
         }
@@ -155,7 +165,7 @@ function restoreHighlights(savedObj) {
   try {
     const savedHighlights = _.get(savedObj, 'highlights', []);
     _.forEach(savedHighlights, (highlight) => {
-      const { path, offsetStart, offsetEnd } = highlight;
+      let { path, offsetStart, offsetEnd, n } = highlight;
       let node = document.querySelector('body')
       _.forEach(path, (childIndex, i) => {
         // stop with last-but-one
@@ -163,18 +173,28 @@ function restoreHighlights(savedObj) {
           node = node.childNodes[childIndex]
         }
       })
-      let textNode = _.get(node, `childNodes[${_.last(path) - 1}]`);
-      if (textNode) {
-        // create the range of highlight
-        const highlightRange = new Range();
-        highlightRange.setStart(textNode, offsetStart);
-        highlightRange.setEnd(textNode, offsetStart + offsetEnd);
-        // make the highlight!
-        // highlightRange.surroundContents(document.createElement('mark'));
-        let markNode = document.createElement('mark');
-        markNode.appendChild(highlightRange.extractContents());
-        highlightRange.insertNode(markNode);
+      let anchorNode, focusNode;
+      if (_.get(node, `childNodes[${_.last(path)}]`)) {
+        // there is already an existing node present at the position where the `mark` node should be
+        anchorNode = _.get(node,`childNodes[${_.last(path) - 1}]`, _.get(node, `childNodes[${_.last(path)}]`));
+        focusNode = _.get(node,`childNodes[${_.last(path) + n}]`) // `n` => # of child-nodes encompassed by the mark-node 
+        console.log(anchorNode)
+        console.log(focusNode)
       }
+      else {
+        // anchor and focus nodes are the same
+        anchorNode = _.get(node, `childNodes[${_.last(path) - 1}]`);
+        focusNode = _.get(node, `childNodes[${_.last(path) - 1}]`);
+        offsetEnd += offsetStart 
+      }
+      // create the range of highlight
+      const highlightRange = new Range();
+      highlightRange.setStart(anchorNode, offsetStart);
+      highlightRange.setEnd(focusNode, offsetEnd);
+      // make the highlight!
+      let markNode = document.createElement('mark');
+      markNode.appendChild(highlightRange.extractContents());
+      highlightRange.insertNode(markNode);
     })
   } catch(err) {
     console.log(err)
