@@ -1,8 +1,8 @@
 const Messages = {
-  "AncestorIncompatibility": {
-    "message": `Anchor and focus nodes of selection should have the same parent node
-    or the same grandparent if one of the nodes' parent is one of <b>, <ul>, <i>`
-  }
+  "AncestorIncompatibility": `Anchor and focus nodes of selection should have the same parent node
+    or the same grandparent if one of the nodes' parent is one of <b>, <ul>, <i>`,
+  "SelectionNotExpected": `Anchor and focus nodes should be text nodes`,
+  "DestinationUnreachable": `Cannot draw a traversal between anchor and focus nodes`
 } 
 
 const BlockElementNames = [

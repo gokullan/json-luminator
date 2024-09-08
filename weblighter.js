@@ -28,7 +28,8 @@ document.addEventListener('click', (event) => {
   const highlightFlag = isAlreadyHighlighted(selection);
   switch(highlightFlag) {
     case 0: {
-      createHighlight(selection);
+      // createHighlight(selection);
+      traverseAndHighlight(selection)
       break;
     }
     case 1: {
