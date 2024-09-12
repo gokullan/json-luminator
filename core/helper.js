@@ -17,9 +17,16 @@ function getBlockParent(node) {
   return currentNode;
 }
 
-function isValidTextNode(node, options={}) {
-  const { excludeEmptyNodes, isRoot } = options;
+// TODO: Refactor to make code more readable
+function returnTextNodeIfValid(node, options={}) {
+  if (_.isNil(node)) {
+    return null;
+  }
+  const { excludeEmptyNodes, isRoot, upperLimitNode=null } = options;
   if (!isRoot && _.get(node, 'nodeName') === '#text') {
+    if (!_.isNil(upperLimitNode) && node.isEqualNode(upperLimitNode)) {
+      return null;
+    }
     if (
       !excludeEmptyNodes ||
       excludeEmptyNodes &&_.get(node, 'length')
@@ -32,30 +39,17 @@ function isValidTextNode(node, options={}) {
 
 /**
  * @param {Element} node - the root node for which the 'first' (immediate leftmost descendant) or 'last' (immediate rightmost descendant) text node is to be obtained
- * @param {string} node - string indicating whether to return the first node ('f') or the last node ('l')
- * @param {object} node - object with properties 'excludeEmptyNodes' (bool) and 'isRoot' (bool)
+ * @param {string} position - string indicating whether to return the first node ('f') or the last node ('l')
+ * @param {object} options - object with properties 'excludeEmptyNodes' (bool) and 'isRoot' (bool)
  * @returns {Element} - returns the necessary element if found; null otherwise 
  */
 function getFirstOrLastTextNode(node, position, options={}) {
   // TODO: Any upper limit needed for recursion?
-  let excludeEmptyNodes, isRoot;
-  try {
-    ({ excludeEmptyNodes, isRoot } = options)
-  } catch(err) {
-    // TODO: Assign error message
-    console.log(err);
-    throw err;
-  }
-
   try {
     let possibleResultNode;
 
-    if (_.isNil(node)) {
-      return null;
-    }
-
-    if (!_.isNil(possibleResultNode = isValidTextNode(node))) {
-      return possibleResultNode
+    if (!_.isNil(possibleResultNode = returnTextNodeIfValid(node, options))) {
+      return possibleResultNode;
     }
 
     const childNodes = _.get(node, 'childNodes');
@@ -78,9 +72,10 @@ function getFirstOrLastTextNode(node, position, options={}) {
     function getLastTextNode() {
       for (let i=childNodes.length - 1; i >= 0; --i) {
         const child = childNodes[i];
-        const textNode = getFirstOrLastTextNode(child, position, { ...options, isRoot: false });
-        if (!_.isNil(textNode)) {
-          return textNode;
+        if (!_.isNil(
+          possibleResultNode = getFirstOrLastTextNode(child, position, { ...options, isRoot: false })
+        )) {
+          return possibleResultNode;
         }
         // else keep searching
       }
@@ -107,58 +102,47 @@ function getFirstOrLastTextNode(node, position, options={}) {
  * @returns {Element} - returns the necessary element if found; null otherwise 
  */
 function getPreviousOrNextTextNode(node, position, options={}) {
-  let excludeEmptyNodes, isRoot;
   try {
-    ({ excludeEmptyNodes, isRoot, upperLimitNode } = options)
-  } catch(err) {
-    // TODO: Assign error message
-    console.log(err);
-    throw err;
-  }
+    let possibleResultNode;
 
-  try {
-    if (_.isNil(node) || node.isEqualNode(options.upperLimitNode)) {
-      return null;
+    if (!_.isNil(possibleResultNode = returnTextNodeIfValid(node, options))) {
+      return possibleResultNode;
     }
 
-    if (!isRoot && _.get(node, 'nodeName') === '#text') {
-      if (
-        !excludeEmptyNodes ||
-        excludeEmptyNodes &&_.get(node, 'length')
-      ) {
-        return node;
-      }
-    }
-
-    function getPreviousTextNode() {
+    function _getPreviousOrNextTextNode(traversalProperty, descendantTraversalLogic) {
       let currentNode = node;
       let parentNode = _.get(currentNode, 'parentNode');
-      // traverse left on the same level
+      // traverse left/right on the same level
       while (currentNode) {
-        currentNode = _.get(currentNode, 'previousSibling');
-        if (_.get(currentNode, 'nodeName') === '#text' && _.get(currentNode, 'length')) {
-          return currentNode;
+        currentNode = _.get(currentNode, traversalProperty);
+        if (!_.isNil(
+          // TODO: The name `isRoot` is misleading here
+          possibleResultNode = returnTextNodeIfValid(currentNode, {...options, isRoot: false})
+        )) {
+          return possibleResultNode;
         }
-        else {
-          const textNode = getFirstOrLastTextNode(currentNode, 'l', { excludeEmptyNodes: true, isRoot: true });
-          if (textNode) {
-            return textNode;
-          }
+        else if (!_.isNil(
+          // check descendants
+          possibleResultNode = getFirstOrLastTextNode(currentNode, descendantTraversalLogic, { ...options, isRoot: false})
+        )) {
+          return possibleResultNode;
         }
       }
       // go one-level up
-      const textNode = getPreviousTextNode(parentNode, upperLimitNode, anchorNode);
-      if (textNode) {
-        return textNode;
+      if (!_.isNil(
+        possibleResultNode = getPreviousOrNextTextNode(parentNode, position, { ...options, isRoot: false})
+      )) {
+        return possibleResultNode;
       }
+      return null;
     }
 
     switch(position) {
       case 'p': {
-        return getPreviousTextNode();
+        return _getPreviousOrNextTextNode('previousSibling', 'l');
       }
       case 'n': {
-        return getNextTextNode();
+        return _getPreviousOrNextTextNode('nextSibling', 'f');
       }
     }
     return null;
@@ -166,33 +150,6 @@ function getPreviousOrNextTextNode(node, position, options={}) {
     console.log(err);
     throw err;
   }
-}
-
-function getNextTextNode(node, upperLimitNode) {
-  if (!node.isEqualNode(upperLimitNode)) {
-    let currentNode = node;
-    let parentNode = _.get(currentNode, 'parentNode');
-    // traverse right on the same level
-    while (currentNode) {
-      currentNode = _.get(currentNode, 'nextSibling');
-      // text-node should be non-empty
-      if (_.get(currentNode, 'nodeName') === '#text' && _.get(currentNode, 'length')) {
-        return currentNode;
-      }
-      else {
-        const textNode = getFirstOrLastTextNode(currentNode, 'f', { excludeEmptyNodes: true, isRoot: true });
-        if (textNode) {
-          return textNode;
-        }
-      }
-    }
-    // go one-level up
-    const textNode = getNextTextNode(parentNode, upperLimitNode);
-    if (textNode) {
-      return textNode;
-    }
-  }
-  return null;
 }
 
 function download(objToSave, name) {
