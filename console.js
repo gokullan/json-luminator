@@ -1,141 +1,191 @@
-function traverse(root, destination, upperLimitNode) {
-  try {
-    console.log(root)
-    if (!root) {
-      console.log("Node undefined")
+(function() {
+  class MyLodash {
+    constructor() {}
+
+    isEmpty(obj) {
+      if (obj) {
+        return this.isNil(obj.length)
+      }
       return true
     }
-    else if (root.isEqualNode(upperLimitNode)) {
-      console.log("Unable to reach destination. Please check")
-      return false;
-    }
-    else if (root.isEqualNode(destination)) {
-      return true;
-    }
-    else {
-      // traverse through all child-nodes first
-      const childNodes = root['childNodes'] || [];
-      for (let child of childNodes) {
-        const isDestinationReached = traverse(child, destination, upperLimitNode);
-        if (isDestinationReached) {
-          return true;
-        }
-      }
-      // traverse through all siblings
-      let currentSibling = root['nextSibling'];
-      while (currentSibling) {
-        const isDestinationReached = traverse(currentSibling, destination, upperLimitNode);
-        if (isDestinationReached) {
-          return true;
-        }
-        currentSibling = currentSibling['nextSibling']
-      }
-      // commence next traversal with parent's next-sibling
-      let parentNode = root['parentNode']
-      let nextNode = parentNode['nextSibling']
-      while (!nextNode) {
-        parentNode = parentNode['parentNode']
-        nextNode = parentNode['nextSibling'] 
-      }
-      return traverse(nextNode, destination, upperLimitNode)
-    }
-  } catch(err) {
-    console.log(err);
-  }
-}
 
-function getFirstTextNode(node) {
-  if (node['nodeName'] === '#text') {
-    return node;
+    isNil(obj) {
+      return obj ? false : true;
+    }
+
+    get(obj, path, defaultVal) {
+      let pathSplits = path.split('.')
+      let curr = obj;
+      for (let split of pathSplits) {
+        if (this.isNil(curr)) {
+          return defaultVal
+        }
+        curr = curr[split]
+      }
+      return curr;
+    }
   }
-  else {
-    const childNodes = node['childNodes'];
-    if (!childNodes) {
+
+  function getDisplayType (element) {
+      var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
+      return cStyle.display;
+  }
+
+  function getFirstOrLastTextNode(node, position, options = {}) {
+    // TODO: Any upper limit needed for recursion?
+    try {
+      let possibleResultNode;
+
+      if (!lodash.isNil(possibleResultNode = returnTextNodeIfValid(node, options))) {
+        return possibleResultNode;
+      }
+
+      const childNodes = lodash.get(node, 'childNodes');
+      // no child nodes => return null
+      if (lodash.isEmpty(childNodes)) {
+        return null;
+      }
+
+      function getFirstTextNode() {
+        for (let child of childNodes) {
+          if (!lodash.isNil(
+              possibleResultNode = getFirstOrLastTextNode(child, position, {
+                ...options,
+                isRoot: false
+              })
+            )) {
+            return possibleResultNode
+          }
+          // else keep searching
+        }
+      }
+
+      function getLastTextNode() {
+        for (let i = childNodes.length - 1; i >= 0; --i) {
+          const child = childNodes[i];
+          if (!lodash.isNil(
+              possibleResultNode = getFirstOrLastTextNode(child, position, {
+                ...options,
+                isRoot: false
+              })
+            )) {
+            return possibleResultNode;
+          }
+          // else keep searching
+        }
+      }
+
+      switch (position) {
+        case 'f': {
+          return getFirstTextNode();
+        }
+        case 'l': {
+          return getLastTextNode();
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  function returnTextNodeIfValid(node, options = {}) {
+    if (lodash.isNil(node)) {
       return null;
     }
-    for (let child of childNodes) {
-      const textNode = getFirstTextNode(child);
-      if (textNode) {
-        return textNode;
+    const {
+      excludeEmptyNodes,
+      isRoot,
+      upperLimitNode = null
+    } = options;
+    if (!isRoot && lodash.get(node, 'nodeName') === '#text') {
+      if (!lodash.isNil(upperLimitNode) && node.isEqualNode(upperLimitNode)) {
+        return null;
+      }
+      if (
+        !excludeEmptyNodes ||
+        excludeEmptyNodes && lodash.get(node, 'length')
+      ) {
+        return node;
       }
     }
+    return null;
   }
-}
 
-function getNextTextNode(node, upperLimitNode) {
-  if (!node.isEqualNode(upperLimitNode)) {
-    let currentNode = node;
-    let parentNode = currentNode['parentNode'];
-    // traverse right on the same level
-    while (currentNode) {
-      currentNode = currentNode['nextSibling'];
-      if (currentNode['nodeName'] === '#text') {
-        return currentNode;
-      }
-      else {
-        const textNode = getFirstTextNode(currentNode);
-        if (textNode) {
-          return textNode;
-        }
-      }
-    }
-    // go one-level up
-    const textNode = getNextTextNode(parentNode, upperLimitNode);
-    if (textNode) {
-      return textNode;
-    }
-  }
-  return null;
-}
-function createHighlight(textNode, anchorOffset=null, focusOffset=null) {
-  // create the range of highlight
-  const highlightRange = new Range();
-  highlightRange.setStart(textNode, anchorOffset);
-  highlightRange.setEnd(textNode, focusOffset);
-  // check if the text-node is already highlighted
-  if (textNode.parentNode.nodeName === 'MARK') {
-    return textNode.parentNode
-  }
-  // make the highlight!
-  let markNode = document.createElement('mark');
-  highlightRange.surroundContents(markNode);
-  // markNode.normalize()
-  return markNode;
-}
+  function getPreviousOrNextTextNode(node, position, options = {}) {
+    try {
+      let possibleResultNode;
 
-function traverse(root, destination, upperLimitNode, nodesSoFar) {
-  try {
-    if (!root || root.isEqualNode(upperLimitNode)) {
-      console.log("Unable to reach destination. Please check")
-      return false;
+          if (options.isRoot && node.isEqualNode(options.upperLimitNode)) {
+      return null;
     }
-    // maintain order of traversal
-    console.log(root)
-    if (root.isEqualNode(destination)) {
-      return true;
-    }
-    else {
-      // traverse through all child-nodes first
-      const childNodes = root['childNodes'];
-      for (let child of childNodes) {
-        const isDestinationReached = traverse(child, destination, upperLimitNode, nodesSoFar);
-        if (isDestinationReached) {
-          return true;
+      
+      if (!lodash.isNil(possibleResultNode = returnTextNodeIfValid(node, options))) {
+        return possibleResultNode;
+      }
+
+      function _getPreviousOrNextTextNode(traversalProperty, descendantTraversalLogic) {
+        let currentNode = node;
+        let parentNode = lodash.get(currentNode, 'parentNode');
+        // traverse left/right on the same level
+        while (currentNode) {
+          currentNode = lodash.get(currentNode, traversalProperty);
+          if (!lodash.isNil(
+              // TODO: The name `isRoot` is misleading here
+              possibleResultNode = returnTextNodeIfValid(currentNode, {
+                ...options,
+                isRoot: false
+              })
+            )) {
+            return possibleResultNode;
+          } else if (!lodash.isNil(
+              // check descendants
+              possibleResultNode = getFirstOrLastTextNode(currentNode, descendantTraversalLogic, {
+                ...options,
+                isRoot: false
+              })
+            )) {
+            return possibleResultNode;
+          }
+        }
+        // go one-level up
+        if (getDisplayType(parentNode) === 'block') {
+          return null;
+        }
+        if (!lodash.isNil(
+            possibleResultNode = getPreviousOrNextTextNode(parentNode, position, {
+              ...options,
+              isRoot: false
+            })
+          )) {
+          return possibleResultNode;
+        }
+        return null;
+      }
+
+      switch (position) {
+        case 'p': {
+          return _getPreviousOrNextTextNode('previousSibling', 'l');
+        }
+        case 'n': {
+          return _getPreviousOrNextTextNode('nextSibling', 'f');
         }
       }
-      // traverse through siblings
-      let currentSibling = root['nextSibling'];
-      while (currentSibling) {
-        const isDestinationReached = traverse(currentSibling, destination, upperLimitNode, nodesSoFar);
-        if (isDestinationReached) {
-          return true;
-        }
-      }
-      // commence next traversal with parent's next-sibling
-      const nextNode = root['parentNode.nextSibling'];
-      traverse(nextNode, destination, upperLimitNode, nodesSoFar)
+      return null;
+    } catch (err) {
+      console.log(err);
+      throw err;
     }
-  } catch(err) {
-    console.log(err);
   }
-}
+
+  const lodash = new MyLodash()
+  let options = {
+    excludeEmptyNodes: true,
+    isRoot: true
+  }
+
+  let sel = window.getSelection();
+  console.log(
+    getPreviousOrNextTextNode(sel.anchorNode, 'p', {...options, upperLimitNode: sel.anchorNode})
+  )
+})()

@@ -1,38 +1,18 @@
-// TODO: Decide if this logic is needed
-function getBlockParent(node) {
-  /*
-   * - The "block parent" of a node is that ancestor whose node-name is one of `BlockElementNames`
-   *   (defined in `constants.js`; these elements are also referred to as block-level elements)
-   * - Since this function is used in the context of checking if a given highlight is to be created or removed,
-   *   the 'MARK' node is also considered "block parent" 
-   */
-  let currentNode = node;
-  while (
-    currentNode &&
-    _.get(currentNode, 'nodeName') !== 'MARK' &&
-    !_.includes(BlockElementNames, _.get(currentNode, 'nodeName'))
-  ) {
-    currentNode = _.get(currentNode, 'parentNode');
-  }
-  return currentNode;
+function getDisplayType (element) {
+    var cStyle = element.currentStyle || window.getComputedStyle(element, ""); 
+    return cStyle.display;
 }
 
-// TODO: Refactor to make code more readable
 function returnTextNodeIfValid(node, options={}) {
-  if (_.isNil(node)) {
+  if (_.isNil(node) || _.get(node, 'nodeName') !== '#text') {
     return null;
   }
   const { excludeEmptyNodes, isRoot, upperLimitNode=null } = options;
-  if (!isRoot && _.get(node, 'nodeName') === '#text') {
-    if (!_.isNil(upperLimitNode) && node.isEqualNode(upperLimitNode)) {
-      return null;
-    }
-    if (
-      !excludeEmptyNodes ||
-      excludeEmptyNodes &&_.get(node, 'length')
-    ) {
-      return node;
-    }
+  if (!isRoot) {  // 1.
+    if (_.isNil(upperLimitNode) || !node.isEqualNode(upperLimitNode)) {  // 2.
+      if (!excludeEmptyNodes || _.get(node, 'length')) {  // 3.
+        return node;
+      }}
   }
   return null;
 }
@@ -128,7 +108,10 @@ function getPreviousOrNextTextNode(node, position, options={}) {
           return possibleResultNode;
         }
       }
-      // go one-level up
+      // go one-level up if feasible
+      if (getDisplayType(parentNode) === 'block') {
+        return null;
+      }
       if (!_.isNil(
         possibleResultNode = getPreviousOrNextTextNode(parentNode, position, { ...options, isRoot: false})
       )) {
@@ -224,5 +207,24 @@ function traverse(root, destination, upperLimitNode) {
   } catch(err) {
     console.log(err);
   }
+}
+
+// TODO: Decide if this logic is needed
+function getBlockParent(node) {
+  /*
+   * - The "block parent" of a node is that ancestor whose node-name is one of `BlockElementNames`
+   *   (defined in `constants.js`; these elements are also referred to as block-level elements)
+   * - Since this function is used in the context of checking if a given highlight is to be created or removed,
+   *   the 'MARK' node is also considered "block parent" 
+   */
+  let currentNode = node;
+  while (
+    currentNode &&
+    _.get(currentNode, 'nodeName') !== 'MARK' &&
+    !_.includes(BlockElementNames, _.get(currentNode, 'nodeName'))
+  ) {
+    currentNode = _.get(currentNode, 'parentNode');
+  }
+  return currentNode;
 }
 

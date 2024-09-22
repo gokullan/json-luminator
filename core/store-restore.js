@@ -5,33 +5,19 @@ function storeAll(rootNode, objToSave, path=[]) {
       // iterate DOM
       for (let i = 0; i < children.length; ++i) {
         let currentNode = children[i];
+        // TODO: Add more validations and refactor
         if (_.get(currentNode, 'nodeName') === "MARK") {
-          console.log(currentNode, getFirstTextNode(currentNode));
-          _.get(objToSave, 'highlights').push({
-            "path": _.concat(path, i),
-            // "anchorOffset": _.get(currentNode, 'previousSibling.length', 0),
-            "anchorOffset": _.get(
-              getLastTextNode(_.get(currentNode, 'previousSibling')),
-              'length',
-              0
-            ),
-            "nextTextNodeLength": _.get(
-              getFirstTextNode(_.get(currentNode, 'nextSibling')),
-              'length',
-              0
-            ),
-            "n": currentNode.childNodes.length,
-            "firstTextNodeLength": _.get(
-              getFirstTextNode(currentNode),
-              'length',
-              0
-            ),
-            "lastTextNodeLength": _.get(
-              getLastTextNode(currentNode),
-              'length',
-              0
-            ),
-          })
+          const properties = fetchPropertiesFromClassNames(currentNode)
+          if (properties.isAnchorNode) {
+            const { focusNode, focusOffset, n } = getHighlightEndNode(currentNode.childNodes[0])
+            const childIndex = properties.anchorOffset > 0? i: i - 1; 
+            _.get(objToSave, 'highlights').push({
+              "path": _.concat(path, childIndex),
+              "anchorOffset": properties.anchorOffset,
+              "focusOffset": focusOffset,
+              "n": n
+            })
+          }
         }
         storeAll(
           currentNode,
@@ -43,6 +29,48 @@ function storeAll(rootNode, objToSave, path=[]) {
   } catch(err) {
     console.log(err);
   }
+}
+
+function fetchPropertiesFromClassNames(markNode) {
+  let properties = {
+    'isAnchorNode': false,
+    'isFocusNode': false,
+    'anchorOffset': null,
+    'focusOffset': null
+  }
+  // console.log(`ClassNames : ${markNode.className}`)
+  let classNames = _.get(markNode, 'className', '').split(" ")
+  for (let className of classNames) {
+    // TODO: Ensure no other class-name starts with the below 2 keywords
+    if (className.startsWith('highlight-start')) {
+      properties.isAnchorNode = true;
+      properties.anchorOffset = _.last(className.split('-'))
+    }
+    if (className.startsWith('highlight-end')) {
+      properties.isFocusNode = true;
+      properties.focusOffset = _.last(className.split('-'))
+    }
+  }
+  return properties;
+}
+
+// return focusNode, focusOffset and n
+// assumes markNode has the 'highlight-start-*' class
+function getHighlightEndNode(textNode) {
+  let focusNode = null, focusOffset = null, n = 0
+  // assumes that the textNode has markNode as parent
+  let properties = fetchPropertiesFromClassNames(textNode.parentNode)
+  while (textNode && !properties.isAnchorNode && !properties.isFocusNode) {
+    textNode = getPreviousOrNextTextNode(textNode, 'n')
+    properties = fetchPropertiesFromClassNames(textNode.parentNode)
+    n += 1
+  }
+  // log errors for other cases
+  if (properties.isFocusNode) {
+    focusNode = textNode 
+    focusOffset = properties.focusOffset
+  }
+  return { focusNode, focusOffset, n }
 }
 
 function restoreHighlights(savedObj) {
