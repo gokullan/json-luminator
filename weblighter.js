@@ -29,11 +29,11 @@ document.addEventListener('click', (event) => {
   switch(highlightFlag) {
     case 0: {
       // createHighlight(selection);
-      traverseAndHighlight(selection)
+      traverseAndHighlight(standardizeSelection(selection))
       break;
     }
     case 1: {
-      removeHighlight(selection);
+      removeHighlight(standardizeSelection(selection));
       break;
     }
   }

@@ -209,6 +209,17 @@ function traverse(root, destination, upperLimitNode) {
   }
 }
 
+function traverseForNNodesAndReturn(root, n) {
+  const options = {excludeEmptyNodes: true, isRoot: true, upperLimitNode: document.querySelector('body')}
+  let count = 0
+  let currentNode = root;
+  while (count < n) {
+    currentNode = getPreviousOrNextTextNode(currentNode, 'n', options);
+    count += 1;
+  }
+  return currentNode
+}
+
 // TODO: Decide if this logic is needed
 function getBlockParent(node) {
   /*

@@ -51,7 +51,7 @@ function createHighlight(textNode, anchorOffset, focusOffset, isAnchorNode=false
   // make the highlight!
   let markNode = document.createElement('mark');
   highlightRange.surroundContents(markNode);
-  markNode.normalize()
+  markNode.parentNode.normalize()
   // set classes
   for (let className of classes) {
     markNode.classList.add(className)

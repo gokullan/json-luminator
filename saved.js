@@ -1,3 +1,3 @@
 var savedHighlights = 
-  {"highlights":[{"path":[1,5,1,1,3,7,1,14,9,3,0,2],"anchorOffset":24,"nextTextNodeLength":0,"n":1,"firstTextNodeLength":6,"lastTextNodeLength":6},{"path":[1,5,1,1,3,7,1,14,9,3,0,5],"anchorOffset":25,"nextTextNodeLength":4,"n":2,"firstTextNodeLength":10,"lastTextNodeLength":1},{"path":[1,5,1,1,3,7,1,14,9,3,0,7,0,0,0],"anchorOffset":0,"nextTextNodeLength":0,"n":1,"firstTextNodeLength":6,"lastTextNodeLength":6},{"path":[1,5,1,1,3,7,1,14,9,3,0,10],"anchorOffset":0,"nextTextNodeLength":0,"n":2,"firstTextNodeLength":6,"lastTextNodeLength":8}]}
+  {"highlights":[{"path":[8,1,1,1,0],"anchorOffset":"0","focusOffset":"15","n":0},{"path":[8,3,3,3,15,3,0],"anchorOffset":"10","focusOffset":"22","n":0},{"path":[8,3,7,3,1,3,3,0],"anchorOffset":"256","focusOffset":"278","n":0},{"path":[8,3,7,7,1,3,3,0],"anchorOffset":"128","focusOffset":"1","n":4},{"path":[8,3,7,11,1,3,1,0],"anchorOffset":"10","focusOffset":"18","n":0}]}
 // Engine - "3rd party driver..."

@@ -10,7 +10,7 @@ function storeAll(rootNode, objToSave, path=[]) {
           const properties = fetchPropertiesFromClassNames(currentNode)
           if (properties.isAnchorNode) {
             const { focusNode, focusOffset, n } = getHighlightEndNode(currentNode.childNodes[0])
-            const childIndex = properties.anchorOffset > 0? i: i - 1; 
+            const childIndex = properties.anchorOffset > 0? i - 1: i; 
             _.get(objToSave, 'highlights').push({
               "path": _.concat(path, childIndex),
               "anchorOffset": properties.anchorOffset,
@@ -57,11 +57,16 @@ function fetchPropertiesFromClassNames(markNode) {
 // return focusNode, focusOffset and n
 // assumes markNode has the 'highlight-start-*' class
 function getHighlightEndNode(textNode) {
+  const options = {excludeEmptyNodes: true, isRoot: true, upperLimitNode: document.querySelector('body')}
   let focusNode = null, focusOffset = null, n = 0
   // assumes that the textNode has markNode as parent
   let properties = fetchPropertiesFromClassNames(textNode.parentNode)
-  while (textNode && !properties.isAnchorNode && !properties.isFocusNode) {
-    textNode = getPreviousOrNextTextNode(textNode, 'n')
+  console.log(properties)
+  // TODO: Refactor
+  while (n < 10 && textNode && !properties.isFocusNode) {
+    textNode = getPreviousOrNextTextNode(textNode, 'n', options)
+    console.log("Next text node")
+    console.log(textNode)
     properties = fetchPropertiesFromClassNames(textNode.parentNode)
     n += 1
   }
@@ -78,66 +83,17 @@ function restoreHighlights(savedObj) {
     const savedHighlights = _.get(savedObj, 'highlights', []);
     _.forEach(savedHighlights, (highlight) => {
       try {
-        let { path, anchorOffset, nextTextNodeLength, n, firstTextNodeLength, lastTextNodeLength } = highlight;
+        let { path, anchorOffset, focusOffset, n } = highlight;
         console.log(path);
         let node = document.querySelector('body')
-        _.forEach(path, (childIndex, i) => {
-          // stop with last-but-one
-          if (i !== path.length - 1) {
-            node = node.childNodes[childIndex]
-          }
+        _.forEach(path, (childIndex) => {
+          node = node.childNodes[childIndex]
         })
-        let anchorNode, focusNode, focusOffset = lastTextNodeLength;
-        let markNodePosition = _.last(path);
-        if (markNodePosition <= node.childNodes.length) {
-          const possibleAnchorNode =  getLastTextNode(
-            _.get(node, `childNodes.${markNodePosition - 1}`)
-          );
-          if (!possibleAnchorNode) {
-            anchorOffset = 0;
-            anchorNode = getLastTextNode(
-              _.get(node, `childNodes.${markNodePosition}`)
-            );
-            focusNode = getFirstTextNode(
-              _.get(node, `childNodes.${(markNodePosition - 1) + n}`)
-            );
-          }
-          // CASE 1: `possibleAnchorNode` is the anchorNode
-          else if (
-            n == 1 &&
-            _.get(getLastTextNode(possibleAnchorNode), 'length') ==
-            anchorOffset + firstTextNodeLength + nextTextNodeLength
-          ) {
-            anchorNode = possibleAnchorNode;
-            focusNode = anchorNode;
-            focusOffset += anchorOffset;
-          }
-          else if (
-            _.get(getFirstTextNode(possibleAnchorNode), 'length') ==
-            anchorOffset + firstTextNodeLength
-          ) {
-            console.log("Case of split")
-            n--;
-            anchorNode = possibleAnchorNode; 
-            focusNode = getFirstTextNode(
-              _.get(node, `childNodes.${(markNodePosition - 1) + n}`)
-            );
-          }
-          else {
-            console.log("Case of no split nor merge")
-            anchorNode = getLastTextNode(
-              _.get(node, `childNodes.${markNodePosition}`)
-            );
-            focusNode = anchorNode;
-            anchorOffset = 0;
-          }
-        }
-        else {
-          console.log("Case of merge");
-          anchorNode = possibleAnchorNode;
-          focusNode = _.get(node, `childNodes.${(markNodePosition - 1) + n}`);
-        }
-        createHighlight({
+        console.log("Node")
+        console.log(node)
+        let anchorNode = node
+        let focusNode = traverseForNNodesAndReturn(node, n)
+        traverseAndHighlight({
           anchorNode,
           anchorOffset,
           focusNode,
