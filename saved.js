@@ -1,3 +1,2 @@
 var savedHighlights = 
-  {"highlights":[{"path":[8,1,1,1,0],"anchorOffset":"0","focusOffset":"15","n":0},{"path":[8,3,3,3,15,3,0],"anchorOffset":"10","focusOffset":"22","n":0},{"path":[8,3,7,3,1,3,3,0],"anchorOffset":"256","focusOffset":"278","n":0},{"path":[8,3,7,7,1,3,3,0],"anchorOffset":"128","focusOffset":"1","n":4},{"path":[8,3,7,11,1,3,1,0],"anchorOffset":"10","focusOffset":"18","n":0}]}
-// Engine - "3rd party driver..."
+  {"highlights":[{"path":[8,1,1,3,0],"anchorOffset":"0","focusOffset":"23","n":0},{"path":[8,3,3,3,3,3,0],"anchorOffset":"10","focusOffset":"25","n":0},{"path":[8,3,3,3,7,3,0],"anchorOffset":"10","focusOffset":"34","n":0},{"path":[8,3,5,1,1,1,0],"anchorOffset":"127","focusOffset":"173","n":0},{"path":[8,3,7,3,1,3,1,0],"anchorOffset":"0","focusOffset":"33","n":0},{"path":[8,3,7,7,1,3,3,0],"anchorOffset":"150","focusOffset":"2","n":4}]}

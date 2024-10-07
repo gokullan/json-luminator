@@ -10,7 +10,7 @@
     {
       "matches": ["https://*.org/*"],
       "js": [
-        "external/lodash.min.js", 
+        "external/lodash.js",
         "core/constants.js", "core/helper.js", "core/highlight-dehighlight.js", "core/store-restore.js",
         "weblighter.js", "saved.js",
         "tests/test.js"
