@@ -93,7 +93,7 @@ function restoreHighlights(savedObj) {
         console.log(node)
         let anchorNode = node
         let focusNode = Helper.traverseForNNodesAndReturn(node, n)
-        traverseAndHighlight({
+        HighlightDehiglight.traverseAndHighlight({
           anchorNode,
           anchorOffset,
           focusNode,

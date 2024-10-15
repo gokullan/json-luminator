@@ -1,5 +1,6 @@
 // instantiate all classes
-let Helper = new HelperClass()
+let Helper = new HelperClass();
+let HighlightDehiglight = new HighlightDehiglightClass();
 
 document.addEventListener('keydown', (event) => {
   try {
@@ -28,15 +29,15 @@ document.addEventListener('click', (event) => {
   if (!selection.toString() || selection.toString().length == 0) {
     return;
   }
-  const highlightFlag = isAlreadyHighlighted(selection);
+  const highlightFlag = HighlightDehiglight.isAlreadyHighlighted(selection);
+  const selectionStandardized = HighlightDehiglight.standardizeSelection(selection);
   switch(highlightFlag) {
     case 0: {
-      // createHighlight(selection);
-      traverseAndHighlight(standardizeSelection(selection))
+      HighlightDehiglight.traverseAndHighlight(selectionStandardized)
       break;
     }
     case 1: {
-      removeHighlight(standardizeSelection(selection));
+      HighlightDehiglight.removeHighlight(selectionStandardized);
       break;
     }
   }
