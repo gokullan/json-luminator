@@ -1,3 +1,6 @@
+// instantiate all classes
+let Helper = new HelperClass()
+
 document.addEventListener('keydown', (event) => {
   try {
     let objToSave;
@@ -7,7 +10,7 @@ document.addEventListener('keydown', (event) => {
       let rootNode = document.querySelector('body')
       objToSave = { "highlights": [] }
       storeAll(rootNode, objToSave);
-      download(objToSave, 'highlight-1.json')
+      Helper.download(objToSave, 'highlight-1.json')
     }
     // `Ctrl + r` to restore highlights
     else if (event.ctrlKey && event.key === 'r') {

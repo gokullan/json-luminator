@@ -16,7 +16,7 @@ function isValidSelectionForHighlight(selection) {  // TODO: include check
     console.log(Messages.SelectionNotExpected)
     return false;
   }
-  else if (getBlockParent(selection.anchorNode) != getBlockParent(selection.focusNode)) {
+  else if (Helper.getBlockParent(selection.anchorNode) != Helper.getBlockParent(selection.focusNode)) {
     console.log(Messages.AncestorIncompatibility)
     return false;
   }
@@ -70,17 +70,17 @@ function traverseAndHighlight(selection) {
     createHighlight(anchorNode, anchorOffset, focusOffset, true, true);
     return;
   }
-  const n = traverse(selection.anchorNode, selection.focusNode, document.querySelector('body'))
+  const n = Helper.traverse(selection.anchorNode, selection.focusNode, document.querySelector('body'))
   console.log(`Number of nodes to traverse = ${n}`)
   // highlight anchor-node
   const markNode = createHighlight(anchorNode, anchorOffset, anchorNode.length, true)
   // highlight nodes between anchor and focus nodes
   const options = {excludeEmptyNodes: true, isRoot: true, upperLimitNode: document.querySelector('body')}
-  let currentNode = getPreviousOrNextTextNode(markNode, 'n', options)
+  let currentNode = Helper.getPreviousOrNextTextNode(markNode, 'n', options)
   let i = 2;
   while (!_.isNil(currentNode) && i < n) {
     const markNode = createHighlight(currentNode, 0, currentNode.length);
-    currentNode = getPreviousOrNextTextNode(markNode, 'n', options);
+    currentNode = Helper.getPreviousOrNextTextNode(markNode, 'n', options);
     i += 1;
   }
   // highlight focus-node
@@ -139,7 +139,7 @@ function standardizeSelection(selection) {
     _.get(anchorNode, 'length') == anchorOffset 
   ) {
     // TODO: fix limit as focus-node
-    selectionStandardized.anchorNode = getPreviousOrNextTextNode(anchorNode, 'n', options);
+    selectionStandardized.anchorNode = Helper.getPreviousOrNextTextNode(anchorNode, 'n', options);
     selectionStandardized.anchorOffset = 0
   }
   else {
@@ -149,7 +149,7 @@ function standardizeSelection(selection) {
   if (
     _.get(selection, 'focusOffset') == 0
   ) {
-    selectionStandardized.focusNode = getPreviousOrNextTextNode(focusNode, 'p', {...options, upperLimitNode: document.querySelector('body')});
+    selectionStandardized.focusNode = Helper.getPreviousOrNextTextNode(focusNode, 'p', {...options, upperLimitNode: document.querySelector('body')});
     selectionStandardized.focusOffset = _.get(focusNode, 'length');
   }
   else {

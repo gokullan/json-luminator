@@ -9,7 +9,7 @@ function saveHighlights() {
     objToSave = { "highlights": [] }
     let rootNode = document.querySelector('body')
     storeAll(rootNode, objToSave);
-    download(objToSave, 'highlight-1.json')
+    Helper.download(objToSave, 'highlight-1.json')
   } catch(err) {
     console.log(err);
   }

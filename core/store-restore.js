@@ -64,7 +64,7 @@ function getHighlightEndNode(textNode) {
   console.log(properties)
   // TODO: Refactor
   while (n < 10 && textNode && !properties.isFocusNode) {
-    textNode = getPreviousOrNextTextNode(textNode, 'n', options)
+    textNode = Helper.getPreviousOrNextTextNode(textNode, 'n', options)
     console.log("Next text node")
     console.log(textNode)
     properties = fetchPropertiesFromClassNames(textNode.parentNode)
@@ -92,7 +92,7 @@ function restoreHighlights(savedObj) {
         console.log("Node")
         console.log(node)
         let anchorNode = node
-        let focusNode = traverseForNNodesAndReturn(node, n)
+        let focusNode = Helper.traverseForNNodesAndReturn(node, n)
         traverseAndHighlight({
           anchorNode,
           anchorOffset,
