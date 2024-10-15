@@ -1,3 +1,7 @@
+function testFn() {
+  console.log("add")
+}
+
 function isValidSelectionForHighlight(selection) {  // TODO: include check
   /*
    * Conditions for creating a highlight:

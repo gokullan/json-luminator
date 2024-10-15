@@ -17,9 +17,12 @@
       ]
     }
   ],
-  "user_scripts": {
+  "sidebar_action": {
+    "default_title": "Weblighter",
+    "default_panel": "background.html"
   },
   "permissions": [
+    "tabs",
   "*://*.mozilla.org/*"
 ]
 }
