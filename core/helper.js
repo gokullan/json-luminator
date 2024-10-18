@@ -29,9 +29,10 @@ class HelperClass {
   getFirstOrLastTextNode(node, position, options={}) {
     // TODO: Any upper limit needed for recursion?
     try {
+      let me = this;
       let possibleResultNode;
   
-      if (!_.isNil(possibleResultNode = this.returnTextNodeIfValid(node, options))) {
+      if (!_.isNil(possibleResultNode = me.returnTextNodeIfValid(node, options))) {
         return possibleResultNode;
       }
   
@@ -44,7 +45,7 @@ class HelperClass {
       function getFirstTextNode() {
         for (let child of childNodes) {
           if (!_.isNil(
-            possibleResultNode = this.getFirstOrLastTextNode(child, position, { ...options, isRoot: false })
+            possibleResultNode = me.getFirstOrLastTextNode(child, position, { ...options, isRoot: false })
           )) {
             return possibleResultNode
           }
@@ -56,7 +57,7 @@ class HelperClass {
         for (let i=childNodes.length - 1; i >= 0; --i) {
           const child = childNodes[i];
           if (!_.isNil(
-            possibleResultNode = this.getFirstOrLastTextNode(child, position, { ...options, isRoot: false })
+            possibleResultNode = me.getFirstOrLastTextNode(child, position, { ...options, isRoot: false })
           )) {
             return possibleResultNode;
           }
@@ -86,9 +87,10 @@ class HelperClass {
    */
   getPreviousOrNextTextNode(node, position, options={}) {
     try {
+      let me = this;
       let possibleResultNode;
   
-      if (!_.isNil(possibleResultNode = this.returnTextNodeIfValid(node, options))) {
+      if (!_.isNil(possibleResultNode = me.returnTextNodeIfValid(node, options))) {
         return possibleResultNode;
       }
   
@@ -100,23 +102,23 @@ class HelperClass {
           currentNode = _.get(currentNode, traversalProperty);
           if (!_.isNil(
             // TODO: The name `isRoot` is misleading here
-            possibleResultNode = this.returnTextNodeIfValid(currentNode, {...options, isRoot: false})
+            possibleResultNode = me.returnTextNodeIfValid(currentNode, {...options, isRoot: false})
           )) {
             return possibleResultNode;
           }
           else if (!_.isNil(
             // check descendants
-            possibleResultNode = this.getFirstOrLastTextNode(currentNode, descendantTraversalLogic, { ...options, isRoot: false})
+            possibleResultNode = me.getFirstOrLastTextNode(currentNode, descendantTraversalLogic, { ...options, isRoot: false})
           )) {
             return possibleResultNode;
           }
         }
         // go one-level up if feasible
-        if (this.getDisplayType(parentNode) === 'block') {
+        if (me.getDisplayType(parentNode) === 'block') {
           return null;
         }
         if (!_.isNil(
-          possibleResultNode = this.getPreviousOrNextTextNode(parentNode, position, { ...options, isRoot: false})
+          possibleResultNode = me.getPreviousOrNextTextNode(parentNode, position, { ...options, isRoot: false})
         )) {
           return possibleResultNode;
         }
@@ -136,14 +138,6 @@ class HelperClass {
       console.log(err);
       throw err;
     }
-  }
-  
-  download(objToSave, name) {
-    var a = document.createElement('a');
-    var file = new Blob([JSON.stringify(objToSave)], {type: 'application/json'});
-    a.href = URL.createObjectURL(file);
-    a.download = name;
-    a.click();
   }
   
   traverse(root, destination, upperLimitNode) {
@@ -195,9 +189,12 @@ class HelperClass {
         // commence next traversal with parent's next-sibling
         let parentNode  = _.get(root, 'parentNode')
         let nextNode  = _.get(parentNode, 'nextSibling')
-        while (!nextNode) {
+        // TODO: Getting caught in infinite loop here
+        let count = 0
+        while (!nextNode && count < 1000) {
           parentNode  = _.get(parentNode, 'parentNode')
           nextNode  = _.get(parentNode, 'nextSibling') 
+          count += 1
         }
         const nextNumberOfNodesToTraverse = this.traverse(nextNode, destination, upperLimitNode)
         if (nextNumberOfNodesToTraverse == -1) {
@@ -241,6 +238,23 @@ class HelperClass {
     }
     return currentNode;
   }
+
+  download(objToSave, name) {
+    var a = document.createElement('a');
+    var file = new Blob([JSON.stringify(objToSave)], {type: 'application/json'});
+    a.href = URL.createObjectURL(file);
+    a.download = name;
+    a.click();
+  }
+  
+  base64ToJson(base64String) {
+    const prefix = 'data:application/json;base64,';
+    const decodedString = atob(
+      base64String.slice(prefix.length)
+    );
+    return JSON.parse(decodedString);
+  }
+  
 }
 
 

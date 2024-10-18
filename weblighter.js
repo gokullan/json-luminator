@@ -1,28 +1,7 @@
 // instantiate all classes
 let Helper = new HelperClass();
 let HighlightDehiglight = new HighlightDehiglightClass();
-
-document.addEventListener('keydown', (event) => {
-  try {
-    let objToSave;
-    // `Ctrl + s` to save highlights
-    if (event.ctrlKey && event.key === 's') {
-      event.preventDefault()
-      let rootNode = document.querySelector('body')
-      objToSave = { "highlights": [] }
-      storeAll(rootNode, objToSave);
-      Helper.download(objToSave, 'highlight-1.json')
-    }
-    // `Ctrl + r` to restore highlights
-    else if (event.ctrlKey && event.key === 'r') {
-      event.preventDefault()
-      objToSave = savedHighlights;
-      restoreHighlights(objToSave);
-    }
-  } catch(err) {
-    console.log(err);
-  }
-})
+let StoreRestore = new StoreRestoreClass();
 
 document.addEventListener('click', (event) => {
   const selection = window.getSelection();
