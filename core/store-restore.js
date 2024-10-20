@@ -6,7 +6,7 @@ class StoreRestoreClass {
       let objToSave = { "highlights": [] }
       let rootNode = document.querySelector('body')
       this.storeAll(rootNode, objToSave);
-      Helper.download(objToSave, 'highlight-1.json')
+      Helper.download(objToSave, `${document.title}-highlights.json`);
     } catch(err) {
       console.log(err);
     }

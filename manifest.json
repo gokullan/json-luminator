@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
-  "name": "Weblighter",
+  "name": "JSON-Luminator",
   "version": "1.0",
   "description": "A persistent web hightligher!",
   "icons": {
-    "48": "icons/highlighter-solid.svg"
+    "48": "icons/JSON-luminator.drawio.svg"
   },
   "content_scripts": [
     {
@@ -18,11 +18,11 @@
     }
   ],
   "sidebar_action": {
-    "default_title": "Weblighter",
-    "default_panel": "background.html"
+    "default_title": "JSON-Luminator",
+    "default_panel": "sidebar/sidebar.html"
   },
   "permissions": [
     "tabs",
-  "*://*.mozilla.org/*"
-]
+    "*://*.org/*"
+  ]
 }

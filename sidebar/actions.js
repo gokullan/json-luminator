@@ -16,7 +16,7 @@ const saveButton = document.getElementById('save')
 
 saveButton.addEventListener('click', () => {
   browser.tabs.executeScript({
-    file: "core/content.js"
+    file: "/core/content.js"
     }).then(() => {
       listener({
         name: "save"
@@ -30,7 +30,7 @@ const fileButton = document.getElementById('file')
 fileButton.addEventListener('change', () => {
   console.log(fileButton.files)
   browser.tabs.executeScript({
-    file: "core/content.js"
+    file: "/core/content.js"
     }).then(() => {
       listener({
         name: "restore",

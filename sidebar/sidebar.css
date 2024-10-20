@@ -1,0 +1,26 @@
+body {
+   background: rgb(34,193,195);
+   background: linear-gradient(90deg, rgba(34,193,195,1) 0%, rgba(253,187,45,0.7) 100%);
+}
+
+h1, button, input, label {
+  padding: 10px;
+  text-align: center;
+}
+
+button, input  {
+  margin: 10px auto;
+}
+
+button, label {
+  border-radius: 5px;
+}
+
+button {
+  width: 50%;
+}
+
+#save {
+  margin-bottom: 50px;
+}
+
