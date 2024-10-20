@@ -1,6 +1,6 @@
 // async function listener(command) {
 // 
-//   await browser.tabs.executeScript({file: 'core/content.js'});
+//   await browser.tabs.executeScript({file: 'core/sidebar-message-listener.js'});
 //   const tabs = await browser.tabs.query({currentWindow: true, active: true});
 //   browser.tabs.sendMessage(tabs[0].id, {command: command});
 // };
@@ -16,7 +16,7 @@ const saveButton = document.getElementById('save')
 
 saveButton.addEventListener('click', () => {
   browser.tabs.executeScript({
-    file: "/core/content.js"
+    file: "/core/sidebar-message-listener.js"
     }).then(() => {
       listener({
         name: "save"
@@ -30,7 +30,7 @@ const fileButton = document.getElementById('file')
 fileButton.addEventListener('change', () => {
   console.log(fileButton.files)
   browser.tabs.executeScript({
-    file: "/core/content.js"
+    file: "/core/sidebar-message-listener.js"
     }).then(() => {
       listener({
         name: "restore",
