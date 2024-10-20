@@ -1,4 +1,4 @@
-# Weblighter
+# JSON-Luminator
 
 An open-source web-highlighter with the ability to save and restore highlights with `json` files. Intended to be used as a Firefox Add-on.
 
