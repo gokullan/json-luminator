@@ -2,7 +2,7 @@
 
 An open-source web-highlighter with the ability to save and restore highlights with `json` files. Intended to be used as a Firefox Add-on.
 
-![JSON-Luminator Demo](https://youtu.be/4Sv0MpIErws)
+[![YouTube](http://i.ytimg.com/vi/4Sv0MpIErws/hqdefault.jpg)](https://www.youtube.com/watch?v=4Sv0MpIErws)
 
 ## Features
 The following is a list of features *currently* supported by this Addon.
