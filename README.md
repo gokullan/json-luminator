@@ -2,7 +2,10 @@
 
 An open-source web-highlighter with the ability to save and restore highlights with `json` files. Intended to be used as a Firefox Add-on.
 
-[![YouTube](http://i.ytimg.com/vi/4Sv0MpIErws/hqdefault.jpg)](https://www.youtube.com/watch?v=4Sv0MpIErws)
+
+https://github.com/user-attachments/assets/5dc8bbff-25fc-4ad2-b75d-63cbf2c9caf5
+
+
 
 ## Features
 The following is a list of features *currently* supported by this Addon.
