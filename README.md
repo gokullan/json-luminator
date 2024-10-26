@@ -17,3 +17,9 @@ The following is a list of features *currently* supported by this Addon.
 ## Motivation
 - To provide to users the satisfaction of highlighting on webpages
 - To ensure a fail-safe mechanism to persist highlights without having to rely on browser cookies
+
+## Running the extension locally
+- `git clone https://github.com/gokullan/json-luminator.git`
+- Enter `about:debugging`in the (Firefox) browser address bar and click on the `This Firefox` option
+- Click on `"Load Temporary Add-on"` and choose the folder where the git-repository was cloned
+- To view the extension sidebar, go to the browser menu and choose `View` &rarr; `Sidebars` &rarr; `JSON-Luminator`
