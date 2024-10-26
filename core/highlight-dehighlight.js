@@ -1,4 +1,12 @@
 class HighlightDehiglightClass {
+  constructor() {
+    this.isHighlightingEnabled = false;
+  }
+
+  toggleHighlight() {
+    this.isHighlightingEnabled = !this.isHighlightingEnabled
+  }
+
   isValidSelectionForHighlight(selection) {  // TODO: include check
     /*
      * Conditions for creating a highlight:

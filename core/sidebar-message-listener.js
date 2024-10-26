@@ -15,6 +15,9 @@
         // TODO: change function name
         StoreRestore.getFile(request)
       }
+      else if (command === 'toggle') {
+        HighlightDehiglight.toggleHighlight()
+      }
     } catch(err) {
       console.log(err);
     }

@@ -4,6 +4,9 @@ let HighlightDehiglight = new HighlightDehiglightClass();
 let StoreRestore = new StoreRestoreClass();
 
 document.addEventListener('click', (event) => {
+  if (!HighlightDehiglight.isHighlightingEnabled) {
+    return;
+  }
   const selection = window.getSelection();
   if (!selection.toString() || selection.toString().length == 0) {
     return;
