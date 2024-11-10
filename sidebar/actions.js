@@ -29,11 +29,22 @@ toggleButton.addEventListener('click', () => {
 })
 
 browser.tabs.onUpdated.addListener(() => {
+  console.log("Tabs updated")
   toggleButton.innerText = "Turn Off"
-  toggleButton.click()
-}, {
-  properties: ['url', 'status', 'title']
-})
+  // toggleButton.click()
+  browser.tabs.executeScript({
+    file: "/core/sidebar-message-listener.js"
+    }).then(() => {
+      listener({
+        name: "toggle"
+      })
+    })
+      .catch((err) => console.log(err));
+},
+// {
+//   properties: ['url', 'status', 'title']
+// }
+)
 
 const saveButton = document.getElementById('save')
 
@@ -56,8 +67,14 @@ fileButton.addEventListener('change', () => {
     }).then(() => {
       listener({
         name: "restore",
-        params: fileButton.files 
+        params: {
+          files: fileButton.files
+        }
       })
     })
       .catch((err) => console.log(err));
 })
+
+browser.runtime.onMessage.addListener((message) => {
+  console.log("Popup listening")
+});

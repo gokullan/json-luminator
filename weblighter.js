@@ -25,3 +25,7 @@ document.addEventListener('click', (event) => {
   }
 })
 
+document.addEventListener('visibilitychange', () => {
+  console.log("Visibility-change", document.hidden)
+})
+
