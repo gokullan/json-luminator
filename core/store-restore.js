@@ -1,7 +1,7 @@
 class StoreRestoreClass {
   constructor() {}
 
-  saveHighlights() {
+  saveHighlights(params={}) {
     try {
       let objToSave = { "highlights": [] }
       let rootNode = document.querySelector('body')
@@ -12,8 +12,8 @@ class StoreRestoreClass {
     }
   }
   
-  getFile(message) {
-    const file = _.get(message, 'params.0')
+  getFile(params) {
+    const file = _.get(params, 'files.0')
     const reader = new FileReader();
       reader.onload = (e) => {
         console.log(reader.result)

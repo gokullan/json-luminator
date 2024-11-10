@@ -1,9 +1,10 @@
 class HighlightDehiglightClass {
   constructor() {
+    browser.runtime.sendMessage({args: "Hello"})
     this.isHighlightingEnabled = false;
   }
 
-  toggleHighlight() {
+  toggleHighlight(params={}) {
     this.isHighlightingEnabled = !this.isHighlightingEnabled
   }
 

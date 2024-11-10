@@ -8,15 +8,16 @@
     try {
       console.log(request)
       const command = _.get(request, 'name')
+      const params = _.get(request, 'params')
       if (command === 'save') {
-        StoreRestore.saveHighlights()
+        StoreRestore.saveHighlights(params)
       }
       else if (command === 'restore') {
         // TODO: change function name
-        StoreRestore.getFile(request)
+        StoreRestore.getFile(params)
       }
       else if (command === 'toggle') {
-        HighlightDehiglight.toggleHighlight()
+        HighlightDehiglight.toggleHighlight(params)
       }
     } catch(err) {
       console.log(err);
