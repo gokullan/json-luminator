@@ -6,7 +6,6 @@
   
   function consumeMessage(request, sender, sendResponse) {
     try {
-      console.log(request)
       const command = _.get(request, 'name')
       const params = _.get(request, 'params')
       if (command === 'save') {

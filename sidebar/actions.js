@@ -1,80 +1,56 @@
-// async function listener(command) {
-// 
-//   await browser.tabs.executeScript({file: 'core/sidebar-message-listener.js'});
-//   const tabs = await browser.tabs.query({currentWindow: true, active: true});
-//   browser.tabs.sendMessage(tabs[0].id, {command: command});
-// };
-
-function listener(message) {
-   const gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-   gettingActiveTab.then((tabs) => {
-     browser.tabs.sendMessage(tabs[0].id, message);
-   });
+async function sendMessageToContentScript(name, params=null) {
+  try {
+    await browser.tabs.executeScript({file: '/core/sidebar-message-listener.js'});
+    const tabs = await browser.tabs.query({currentWindow: true, active: true});
+    console.log(tabs[0])
+    await browser.tabs.sendMessage(tabs[0].id, {name, params});
+  } catch(err) {
+    console.log(err)
+  }
 }
 
 const toggleButton = document.getElementById('toggle')
 const toggleStates = ["Turn On", "Turn Off"]
 
-toggleButton.addEventListener('click', () => {
+toggleButton.addEventListener('click', async() => {
   toggleButton.innerText = 
     toggleButton.innerText == toggleStates[0]? toggleStates[1]: toggleStates[0]
-  browser.tabs.executeScript({
-    file: "/core/sidebar-message-listener.js"
-    }).then(() => {
-      listener({
-        name: "toggle"
-      })
-    })
-      .catch((err) => console.log(err));
+  await sendMessageToContentScript('toggle') 
 })
-
-browser.tabs.onUpdated.addListener(() => {
-  console.log("Tabs updated")
-  toggleButton.innerText = "Turn Off"
-  // toggleButton.click()
-  browser.tabs.executeScript({
-    file: "/core/sidebar-message-listener.js"
-    }).then(() => {
-      listener({
-        name: "toggle"
-      })
-    })
-      .catch((err) => console.log(err));
-},
-// {
-//   properties: ['url', 'status', 'title']
-// }
-)
 
 const saveButton = document.getElementById('save')
 
-saveButton.addEventListener('click', () => {
-  browser.tabs.executeScript({
-    file: "/core/sidebar-message-listener.js"
-    }).then(() => {
-      listener({
-        name: "save"
-      })
-    })
-      .catch((err) => console.log(err));
+saveButton.addEventListener('click', async() => {
+  await sendMessageToContentScript('save') 
 })
 
 const fileButton = document.getElementById('file')
 
-fileButton.addEventListener('change', () => {
-  browser.tabs.executeScript({
-    file: "/core/sidebar-message-listener.js"
-    }).then(() => {
-      listener({
-        name: "restore",
-        params: {
-          files: fileButton.files
-        }
-      })
-    })
-      .catch((err) => console.log(err));
+fileButton.addEventListener('change', async() => {
+  await sendMessageToContentScript('restore', {files: fileButton.files}) 
 })
 
-browser.runtime.onMessage.addListener((message) => {
-  console.log("Popup listening")
+// The content script sends a message to retrieve the state of the highlight-enabled flag
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  sendResponse(toggleButton.innerText)
 });
+
+// TODO: Find out why the following errors occurred
+// - Missing host permissions for tab
+// - _ is not defined
+// browser.tabs.onUpdated.addListener(() => {
+//   console.log("Tabs updated")
+//   toggleButton.innerText = "Turn Off"
+//   // toggleButton.click()
+//   browser.tabs.executeScript({
+//     file: "/core/sidebar-message-listener.js"
+//     }).then(() => {
+//       listener({
+//         name: "toggle"
+//       })
+//     })
+//       .catch((err) => console.log(err));
+// }, {
+//   properties: ['url', 'status', 'title']
+// })
+

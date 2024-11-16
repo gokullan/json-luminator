@@ -2,30 +2,31 @@
 let Helper = new HelperClass();
 let HighlightDehiglight = new HighlightDehiglightClass();
 let StoreRestore = new StoreRestoreClass();
+let isTabSwitched = true;
 
 document.addEventListener('click', (event) => {
-  if (!HighlightDehiglight.isHighlightingEnabled) {
-    return;
+  if (isTabSwitched) {
+    isTabSwitched = false;
+    // get highlight-flag state from sidebar
+    browser.runtime.sendMessage({ name: 'getToggle' }).then(
+      (result) => {
+        HighlightDehiglight.isHighlightingEnabled = true
+        if (result == "Turn On") {
+          HighlightDehiglight.isHighlightingEnabled = false
+        }
+        HighlightDehiglight.doHighlightOrDehighlight()
+      }
+    )
   }
-  const selection = window.getSelection();
-  if (!selection.toString() || selection.toString().length == 0) {
-    return;
-  }
-  const highlightFlag = HighlightDehiglight.isAlreadyHighlighted(selection);
-  const selectionStandardized = HighlightDehiglight.standardizeSelection(selection);
-  switch(highlightFlag) {
-    case 0: {
-      HighlightDehiglight.traverseAndHighlight(selectionStandardized)
-      break;
-    }
-    case 1: {
-      HighlightDehiglight.removeHighlight(selectionStandardized);
-      break;
-    }
+  else {
+    HighlightDehiglight.doHighlightOrDehighlight()
   }
 })
 
 document.addEventListener('visibilitychange', () => {
-  console.log("Visibility-change", document.hidden)
+  if (document.hidden) {
+    // indicates the tab is being switched
+    isTabSwitched = true;
+  }
 })
 
